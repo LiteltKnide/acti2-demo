@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型管理</title>
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div id="top">
+</div>
+<div class="container">
+<h2>模型列表</h2>
+<hr>
+<a href="javascript: AJAX.POST('/models/newModel')" class="btn btn-primary">绘制流程</a>
+<table border="1" id="model-list" class="table table-bordered">
+    <tr>
+        <td>模型编号</td>
+        <td>模型名称</td>
+        <td>版本</td>
+        <td>创建时间</td>
+        <td>操作</td>
+    </tr>
+    <script id="models" type="text/html">
+        <tr>
+            <td>模型编号</td>
+            <td>模型名称</td>
+            <td>版本</td>
+            <td>创建时间</td>
+            <td>操作</td>
+        </tr>
+        {{each rows.list}}
+        <tr>
+            <td>{{$value.id}}</td>
+            <td>{{$value.name}}</td>
+            <td>{{$value.version}}</td>
+            <td>{{$value.createTime}}</td>
+            <td>
+                <a href="/editor?modelId={{$value.id}}" class="btn btn-primary">编辑</a>
+             <a href="javascript: AJAX.DELETE('/models/{{$value.id}}')" class="btn btn-danger">删除</a>
+             <a href="javascript: AJAX.POST('/models/{{$value.id}}/deployment')" class="btn btn-primary">发布</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+</table>
+<hr>
+<h2>部署列表</h2>
+<hr>
+<table border="1" id="deployment-list" class="table table-bordered">
+    <tr>
+        <td>编号</td>
+        <td>名称</td>
+        <td>部署时间</td>
+        <td>操作</td>
+    </tr>
+    <script id="deployments" type="text/html">
+        <tr>
+            <td>编号</td>
+            <td>名称</td>
+            <td>部署时间</td>
+            <td>操作</td>
+        </tr>
+    {{each rows.list}}
+    <tr>
+        <td>{{$value.id}}</td>
+        <td>{{$value.name}}</td>
+        <td>{{$value.deploymentTime}}</td>
+        <td><a href="javascript: AJAX.DELETE('/deployments/{{$value.id}}')" class="btn btn-danger">删除</a></td>
+    </tr>
+    {{/each}}
+    </script>
+</table>
+</div>
+
+<script src="/lib/js/jquery-1.10.2.min.js"></script>
+<script src="/lib/js/jquery.cookie.js"></script>
+<script src="/js/ajax-util.js"></script>
+<script src="/lib/js/template.js"></script>
+
+<!-- 新 Bootstrap 核心 CSS 文件 -->
+<link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script>
+$(function()
+{
+    AJAX.GET("/models", null
+            , function (result) {
+                var html = template("models", result);
+                $("#model-list").html(html);
+            });
+
+    AJAX.GET("/deployments", null
+            , function (result) {
+                var html = template("deployments", result);
+                $("#deployment-list").html(html);
+            });
+})
+</script>
+</body>
+</html>
