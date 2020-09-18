@@ -3,106 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <title>模型管理</title>
-    <!-- 新 Bootstrap 核心 CSS 文件 -->
-    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-
-
-    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="/lib/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="/lib/css/bootstrap-table.min.css" rel="stylesheet"/>
+    <link href="/lib/css/bootstrap-theme.min.css" rel="stylesheet"/>
 </head>
 <body>
 <div id="top">
 </div>
 <div class="container">
-<h2>模型列表</h2>
+    <div>
+        <h2>模型列表</h2>
+        <hr>
+        <a href="javascript: AJAX.POST('/models/newModel')" class="btn btn-primary">绘制流程</a>
+        <table id="modelDataShow">
+        </table>
+    </div>
+</div>
 <hr>
-<a href="javascript: AJAX.POST('/models/newModel')" class="btn btn-primary">绘制流程</a>
-<table border="1" id="model-list" class="table table-bordered">
-    <tr>
-        <td>模型编号</td>
-        <td>模型名称</td>
-        <td>版本</td>
-        <td>创建时间</td>
-        <td>操作</td>
-    </tr>
-    <script id="models" type="text/html">
-        <tr>
-            <td>模型编号</td>
-            <td>模型名称</td>
-            <td>版本</td>
-            <td>创建时间</td>
-            <td>操作</td>
-        </tr>
-        {{each rows.list}}
-        <tr>
-            <td>{{$value.id}}</td>
-            <td>{{$value.name}}</td>
-            <td>{{$value.version}}</td>
-            <td>{{$value.createTime}}</td>
-            <td>
-                <a href="/editor?modelId={{$value.id}}" class="btn btn-primary">编辑</a>
-             <a href="javascript: AJAX.DELETE('/models/{{$value.id}}')" class="btn btn-danger">删除</a>
-             <a href="javascript: AJAX.POST('/models/{{$value.id}}/deployment')" class="btn btn-primary">发布</a>
-            </td>
-        </tr>
-        {{/each}}
-    </script>
-</table>
-<hr>
-<h2>部署列表</h2>
-<hr>
-<table border="1" id="deployment-list" class="table table-bordered">
-    <tr>
-        <td>编号</td>
-        <td>名称</td>
-        <td>部署时间</td>
-        <td>操作</td>
-    </tr>
-    <script id="deployments" type="text/html">
-        <tr>
-            <td>编号</td>
-            <td>名称</td>
-            <td>部署时间</td>
-            <td>操作</td>
-        </tr>
-    {{each rows.list}}
-    <tr>
-        <td>{{$value.id}}</td>
-        <td>{{$value.name}}</td>
-        <td>{{$value.deploymentTime}}</td>
-        <td><a href="javascript: AJAX.DELETE('/deployments/{{$value.id}}')" class="btn btn-danger">删除</a></td>
-    </tr>
-    {{/each}}
-    </script>
-</table>
+<div class="container">
+    <div>
+        <h2>部署列表</h2>
+        <hr>
+        <table id="deploymentDataShow">
+        </table>
+    </div>
 </div>
 
 <script src="/lib/js/jquery-1.10.2.min.js"></script>
 <script src="/lib/js/jquery.cookie.js"></script>
 <script src="/js/ajax-util.js"></script>
 <script src="/lib/js/template.js"></script>
+<script src="/lib/js/bootstrap.min.js"></script>
+<script src="/lib/js/bootstrap-table.min.js"></script>
 
-<!-- 新 Bootstrap 核心 CSS 文件 -->
-<link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-
-
-<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script>
-$(function()
-{
-    AJAX.GET("/models", null
+    $(function () {
+        AJAX.GET("/models", null
             , function (result) {
                 var html = template("models", result);
                 $("#model-list").html(html);
             });
 
-    AJAX.GET("/deployments", null
-            , function (result) {
-                var html = template("deployments", result);
-                $("#deployment-list").html(html);
-            });
-})
+        function addFunctionAlty(value, row, index) {
+            return [
+                '<button id="dpDelete" type="button" class="btn btn-danger">删除</button>',
+            ].join('');
+        }
+
+        function addFunctionModel(value, row, index) {
+            return [
+                '<button id="edit" type="button" class="btn btn-primary">编辑</button>',
+                '<button id="mDelete" type="button" class="btn btn-danger">删除</button>',
+                '<button id="deploy" type="button" class="btn btn-primary">发布</button>',
+            ].join('');
+        }
+
+        window.operateEvents = {
+            'click #dpDelete': function (e, value, row, index) {
+                AJAX.DELETE('/deployments/' + row.id);
+            },
+            'click #edit': function (e, value, row, index) {
+                window.location.href = '/editor?modelId=' + row.id;
+            },
+            'click #mDelete': function (e, value, row, index) {
+                AJAX.DELETE('/models/' + row.id);
+            },
+            'click #deploy': function (e, value, row, index) {
+                AJAX.POST('/models/' + row.id + '/deployment');
+            }
+        };
+
+        var modelColumns = [
+            {
+                title: '模型编号',
+                field: 'id',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '模型名称',
+                field: 'name',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '版本',
+                field: 'version',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '创建时间',
+                field: 'createTime',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '操作',
+                field: 'operation',
+                align: 'center',
+                events: operateEvents,//给按钮注册事件
+                formatter: addFunctionModel//表格中增加按钮
+            }
+        ];
+
+        var deploymentColumns = [
+            {
+                title: '编号',
+                field: 'id',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '名称',
+                field: 'name',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '部署时间',
+                field: 'deploymentTime',
+                align: 'center',
+                valign: 'middle'
+            },
+            {
+                title: '操作',
+                field: 'operation',
+                align: 'center',
+                events: operateEvents,//给按钮注册事件
+                formatter: addFunctionAlty//表格中增加按钮
+            }
+        ];
+        $('#modelDataShow').bootstrapTable({
+            columns: modelColumns,
+            classes: "table table-bordered table-striped table-sm", //设置表格样式
+//            height:600,
+            //******服务器端分页设置****
+            url: "/models", //服务器返回数据的网址
+            method: 'GET',   //数据请求方式
+            sidePagination: 'server',
+//            search:true, //******开启搜索框****//
+            searchOnEnterKey: false, //******回车后执行搜索****//
+            pagination: true,
+//            showRefresh: true,//刷新功能
+            queryParams: getParams,//携带参数
+            pageNumber: 1,
+            pageSize: 8,
+            pageList: "[8, 20, 100]",
+            paginationHAlign: "left",
+            paginationDetailHAlign: "right",
+            //******服务器端分页设置****
+            onLoadSuccess: function (data) {
+//                console.info(JSON.stringify(data));
+            },
+            responseHandler: function (res) {
+                return {                            //return bootstrap-table能处理的数据格式
+                    "total": res.data.rows.totalRows,
+                    "rows": res.data.rows.list
+                }
+            }
+        });
+        $('#deploymentDataShow').bootstrapTable({
+            columns: deploymentColumns,
+            classes: "table table-bordered table-striped table-sm", //设置表格样式
+//            height:600,
+            //******服务器端分页设置****
+            url: "/deployments", //服务器返回数据的网址
+            method: 'GET',   //数据请求方式
+            sidePagination: 'server',
+//            search:true, //******开启搜索框****//
+            searchOnEnterKey: false, //******回车后执行搜索****//
+            pagination: true,
+//            showRefresh: true,//刷新功能
+            queryParams: getParams,//携带参数
+            pageNumber: 1,
+            pageSize: 8,
+            pageList: "[8, 20, 100]",
+            paginationHAlign: "left",
+            paginationDetailHAlign: "right",
+            //******服务器端分页设置****
+            onLoadSuccess: function (data) {
+//                console.info(JSON.stringify(data));
+            },
+            responseHandler: function (res) {
+                return {                            //return bootstrap-table能处理的数据格式
+                    "total": res.data.rows.totalRows,
+                    "rows": res.data.rows.list
+                }
+            }
+        });
+
+        // TODO 下面这个请求成功后不走onLoadSuccess方法，不知道为什么
+        $("#dataShow1").bootstrapTable({
+            url: "/deployments/list2",
+            method: "POST",
+            sortName: "CompanyShortname",//排序列
+//            striped: true,//條紋行
+            sidePagination: "server",//服务器分页
+            showRefresh: true,//刷新功能
+//            clickToSelect: false,//选择行即选择checkbox
+//            singleSelect: true,//仅允许单选
+            pagination: true,//启用分页
+            pageCount: 10,//每页行数
+            pageIndex: 0,//起始页
+            pageList: [10, 25, 50, 100],//可供选择的每页的行数
+            escape: true,//过滤危险字符
+            queryParams: getParams,//携带参数
+            dataType: "jsonp",
+            responseHandler: function (res) {
+                $("#invite_count").html(res.data.rows.rowSize);
+                return {                            //return bootstrap-table能处理的数据格式
+                    "total": res.data.rows.rowSize,
+                    "rows": res.data.rows.list
+                }
+            },
+            columns: columns,
+            onLoadSuccess: function (ee) {
+                //查询数据成功
+                var data = JSON.stringify(ee);
+                alert(data);
+            }
+        });
+
+        function getParams(params) {
+            return {
+                page: params.offset / params.limit + 1,
+                rowSize: params.limit
+            }
+        }
+    })
 </script>
 </body>
 </html>
