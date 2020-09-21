@@ -21,7 +21,7 @@ import javax.sql.DataSource;
  * @Version 1.0
  **/
 @Configuration
-public class Cfg_Activiti {
+public class ActivitiConfig {
 
     @Autowired
     ActivitiDataSourceProperties activitiDataSourceProperties;
@@ -36,7 +36,12 @@ public class Cfg_Activiti {
         DruiddataSource.setUsername(activitiDataSourceProperties.getUsername());
         return DruiddataSource;
     }
-    //流程配置，与spring整合采用SpringProcessEngineConfiguration这个实现
+
+    /**
+     *
+     * 流程配置，与spring整合采用SpringProcessEngineConfiguration这个实现
+     *
+     */
     @Bean
     public ProcessEngineConfiguration processEngineConfiguration(DataSource dataSource, PlatformTransactionManager transactionManager){
         SpringProcessEngineConfiguration processEngineConfiguration = new SpringProcessEngineConfiguration();
@@ -54,7 +59,11 @@ public class Cfg_Activiti {
         return processEngineConfiguration;
     }
 
-    //流程引擎，与spring整合使用factoryBean
+    /**
+     *
+     * 流程引擎，与spring整合使用factoryBean
+     *
+     */
     @Bean
     public ProcessEngineFactoryBean processEngine(ProcessEngineConfiguration processEngineConfiguration){
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
@@ -62,7 +71,11 @@ public class Cfg_Activiti {
         return processEngineFactoryBean;
     }
 
-    //八大接口
+    /**
+     *
+     * 八大接口
+     *
+     */
     @Bean
     public RepositoryService repositoryService(ProcessEngine processEngine){
         return processEngine.getRepositoryService();
@@ -102,6 +115,4 @@ public class Cfg_Activiti {
     public DynamicBpmnService dynamicBpmnService(ProcessEngine processEngine){
         return processEngine.getDynamicBpmnService();
     }
-
-    //八大接口 end
 }

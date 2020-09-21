@@ -131,6 +131,7 @@ public class ModelerController implements RestServiceController<Model, String> {
         );
     }
 
+    @Override
     public Object deleteOne(@PathVariable("id")String id){
         repositoryService.deleteModel(id);
         return ToWeb.buildResult().refresh();
